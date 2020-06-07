@@ -1,13 +1,25 @@
 <template>
   <div class="list">
-    {{ list.name }}
-    <Card v-for="card in list.cards" :key="card.id" :card="card" />
+    <div
+      :contenteditable="contenteditable"
+      @dbclick="onDoubleClick"
+      @keypress.enter="onKeyPressEnter"
+      @blur="onBlur"
+    >
+      {{ list.name }}
+    </div>
+    <Card
+      v-for="card in list.cards"
+      :key="card.id"
+      :card="card"
+      :cardText.sync="card.text"
+    />
     <input type="text" @change="addCard" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Emit } from "vue-property-decorator";
+import { Component, Vue, Prop, Emit, PropSync } from "vue-property-decorator";
 import Card from "@/components/Card.vue";
 import { IList, IAddCardEvent } from "@/types";
 
@@ -21,6 +33,12 @@ export default class List extends Vue {
   // 「!」はNon-null assertion operator
   list!: IList;
 
+  contenteditable = false;
+
+  // computed（算出プロパティ）のgetterとsetterのようになる
+  @PropSync("listName", { type: String, required: true })
+  syncedListName!: IList["name"];
+
   @Emit()
   addCard(event: Event & { currentTarget: HTMLInputElement }): IAddCardEvent {
     // 次の処理でリセットしてしまうので変数に格納
@@ -32,6 +50,26 @@ export default class List extends Vue {
       listId: this.list.id,
       text
     };
+  }
+
+  onDoubleClick(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
+    // 要素のテキストを編集可能にする
+    this.contenteditable = true;
+    //フォーカスを当てる
+    event.currentTarget.focus();
+  }
+
+  onKeyPressEnter(
+    event: KeyboardEvent & { currentTarget: HTMLDivElement }
+  ): void {
+    // フォーカスを外す
+    event.currentTarget.blur();
+  }
+
+  onBlur(event: FocusEvent & { currentTarget: HTMLDivElement }): void {
+    this.syncedListName = event.currentTarget.innerText;
+    // 要素のテキストを編集不可にする
+    this.contenteditable = false;
   }
 }
 </script>

@@ -1,10 +1,13 @@
 <template>
   <div id="app">
-    <template v-for="list in lists">
-      <div class="list-container" :key="list.id">
-        <List :list="list" @add-card="addCard" />
-      </div>
-    </template>
+    <List
+      v-for="list in lists"
+      class="list"
+      :key="list.id"
+      :list="list"
+      :listName.sync="list.name"
+      @add-card="addCard"
+    />
     <input type="text" @change="addList" />
   </div>
 </template>
