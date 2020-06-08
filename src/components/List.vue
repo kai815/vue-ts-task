@@ -6,13 +6,16 @@
       @keypress.enter="onKeyPressEnter"
       @blur="onBlur"
     >
+      <Cross @click="removeList" />
       {{ list.name }}
     </div>
     <Card
       v-for="card in list.cards"
       :key="card.id"
+      :listId="list.id"
       :card="card"
       :cardText.sync="card.text"
+      @remove-card="removeCard"
     />
     <input type="text" @change="addCard" />
   </div>
@@ -21,11 +24,13 @@
 <script lang="ts">
 import { Component, Vue, Prop, Emit, PropSync } from "vue-property-decorator";
 import Card from "@/components/Card.vue";
-import { IList, IAddCardEvent } from "@/types";
+import Cross from "@/components/Cross.vue";
+import { IList, IAddCardEvent, IRemoveCardEvent } from "@/types";
 
 @Component({
   components: {
-    Card
+    Card,
+    Cross
   }
 })
 export default class List extends Vue {
@@ -50,6 +55,15 @@ export default class List extends Vue {
       listId: this.list.id,
       text
     };
+  }
+
+  @Emit()
+  removeList(): number {
+    return this.list.id;
+  }
+  @Emit()
+  removeCard(event: IRemoveCardEvent): IRemoveCardEvent {
+    return event;
   }
 
   onDoubleClick(event: MouseEvent & { currentTarget: HTMLDivElement }): void {

@@ -7,6 +7,8 @@
       :list="list"
       :listName.sync="list.name"
       @add-card="addCard"
+      @remove-list="removeList"
+      @remove-card="removeCard"
     />
     <input type="text" @change="addList" />
   </div>
@@ -15,7 +17,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import List from "@/components/List.vue";
-import { IList, IAddCardEvent } from "@/types";
+import { IList, IAddCardEvent, IRemoveCardEvent } from "@/types";
 import { createInitialLists } from "@/initialData";
 
 @Component({
@@ -57,6 +59,22 @@ export default class App extends Vue {
     list.cards.push(newCard);
 
     ++this.cardCreatedCount;
+  }
+
+  // @emitで実行したremoveListからの戻り値を受け取っている
+  removeList(listId: number): void {
+    const listIndex = this.lists.findIndex(list => list.id === listId);
+    // findIndexで見つからない場合は-1を返すのでその場合は早期リターン
+    if (listIndex === -1) return;
+    this.lists.splice(listIndex, 1);
+  }
+
+  removeCard({ listId, cardId }: IRemoveCardEvent): void {
+    const list = this.lists.find(list => list.id === listId);
+    if (list === undefined) return;
+    const cardIndex = list.cards.findIndex(card => card.id === cardId);
+    if (cardIndex === -1) return;
+    list.cards.splice(cardIndex, 1);
   }
 }
 </script>

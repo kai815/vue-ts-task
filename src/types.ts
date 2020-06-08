@@ -13,3 +13,8 @@ export interface IAddCardEvent {
   listId: number;
   text: string;
 }
+
+export interface IRemoveCardEvent {
+  listId: number;
+  cardId: number;
+}

@@ -6,23 +6,29 @@
       @keypress.enter="onKeyPressEnter"
       @blur="onBlur"
     >
+      <Cross @click="removeCard" />
       {{ card.text }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, PropSync } from "vue-property-decorator";
-import { ICard } from "@/types";
+import { Component, Vue, Prop, Emit, PropSync } from "vue-property-decorator";
+import Cross from "@/components/Cross.vue";
+import { ICard, IList, IRemoveCardEvent } from "@/types";
 
-@Component
+@Component({
+  components: {
+    Cross
+  }
+})
 export default class Card extends Vue {
-  @Prop({
-    type: Object,
-    required: true
-  })
+  @Prop({ type: Object, required: true })
   // 「!」はNon-null assertion operator
   card!: ICard;
+
+  @Prop({ type: Number, required: false })
+  listId!: IList["id"];
 
   @PropSync("cardText", { type: String, required: true })
   syncedCardText!: ICard["text"];
@@ -44,6 +50,14 @@ export default class Card extends Vue {
     this.syncedCardText = event.currentTarget.innerText;
 
     this.contenteditable = false;
+  }
+
+  @Emit()
+  removeCard(): IRemoveCardEvent {
+    return {
+      listId: this.listId,
+      cardId: this.card.id
+    };
   }
 }
 </script>
